@@ -1,0 +1,93 @@
+﻿@*@model SniperdyneDemo.Models.Vehicles*@
+@using PagedList.Mvc;
+@using PagedList;
+
+@model IPagedList<SniperdyneDemo.Models.Vehicles>
+
+
+@{
+	ViewBag.Title = "Index";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+	/*.col1 {
+		width: 5%;*/ /* not very useful in this case as 'col2' will take the remaining */
+	/*}*/
+</style>
+
+<div style="font-family:Arial">
+	<h2>Vehicle Shop</h2>
+	<p>
+		@Html.ActionLink("Create New", "Create")
+	</p>
+	<p>
+		@using (@Html.BeginForm("Index", "Home", FormMethod.Get))
+		{
+			<b>Search By:</b>
+			@Html.RadioButton("searchBy", "VehiclesName", true) <text>Vehicle Name</text>
+			@Html.TextBox("search") <input type="submit" value="search" />
+		}
+	</p>
+	<table border="1">
+		<tr>
+			<th>
+				@Html.DisplayNameFor(model => model.First().VehiclesName)
+			</th>
+			<th>
+				@Html.DisplayNameFor(model => model.First().VehiclesType)
+			</th>
+			<th >
+				@Html.DisplayNameFor(model => model.First().VehiclessImages)
+			</th>
+			<th>Action</th>
+		</tr>
+		@if (Model.Count() == 0)
+		{
+			<tr>
+				<td colspan="4">
+					No records match search criteria
+				</td>
+			</tr>
+		}
+		else
+		{
+			foreach (var item in Model)
+			{
+				using (Html.BeginForm("Delete", "Home", new { id = item.VehiclesID }))
+				{
+					<tr>
+						<td>
+							@Html.DisplayFor(modelItem => item.VehiclesName)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.VehiclesType)
+						</td>
+						<td>
+							@*@Html.DisplayFor(modelItem => item.VehiclessImages)*@
+							@*<img src="@Url.Content(item.VehiclessImages)" height="100" width="100" />*@
+							@*@{
+								var base64 = Convert.ToBase64String(item.VehiclessImages);
+								var imgsrc = string.Format("data
+							}*@
+
+							@{
+								var base64 = Convert.ToBase64String(item.VehiclessImages);
+								var imgSrc = String.Format("data:image/gif;base64,{0}", base64);
+							}
+
+							<img src="@imgSrc" style="max-width:100px; max-height:100px"/>
+
+
+						</td>
+						<td>
+							@Html.ActionLink("Edit", "Edit", new { id = item.VehiclesID }) |
+							<input type="submit" value="Delete" onclick="return confirm('Are you sure you want to delete record with ID = @item.VehiclesID');" />
+						</td>
+					</tr>
+				}
+			}
+		}
+	</table>
+	@Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchBy = Request.QueryString["searchBy"], search = Request.QueryString["search"] }),
+	new PagedListRenderOptions() { Display = PagedListDisplayMode.IfNeeded, DisplayItemSliceAndTotal = true })
